@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Teppo Kurki <teppo.kurki@iki.fi>
+ * Copyright 2019 Clemens Hammerl <beat84@me.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,39 +13,49 @@
  * limitations under the License.
  */
 
-const debug = require('debug')('simulator')
-
 
 module.exports = function(app) {
   const plugin = {}
+  
+  const start = new Date().getTime()
+
   var timers = []
-  var apstate
+  var runnerIndex = 0
+
+  
 
   plugin.start = function(props) {
 
+    var allAPStates = ["auto", "standby", "alarm", "noDrift", "wind", "depthContour", "route", "directControl"]
+    var standardStates = ["auto", "standby", "wind", "route"]
 
-  apstate = props.apstate
 
-
-    var delta = {
-        updates: [
-          {
-            "$source": "apsimulator",
-            values: [
-              {
-                path: "steering.autopilot.state",
-                value: apstate
-              }
-            ]
-          }
-        ]
-      }
 
     timers.push(setInterval(() => {
-        app.handleMessage("apsimulator", delta
-      }, props.outputPeriod * 1000 || 1000)
 
+        var state
 
+        if (props.allStates) {
+          state = allAPStates[runnerIndex % allAPStates.length]
+        }else {
+          state = standardStates[runnerIndex % standardStates.length]
+        }
+
+        app.handleMessage("apsimulator", createStateDelta(state))
+
+        runnerIndex++
+
+        if (runnerIndex > 10) {
+          runnerIndex = 0
+        }
+
+      }, props.outputPeriod * 1000))
+
+      timers.push(setInterval(() => {
+
+        app.handleMessage("apsimulator", createTargetDelta(start))
+
+      }, 500))
 
   }
 
@@ -59,7 +69,7 @@ module.exports = function(app) {
 
 
   plugin.id = "apsimulator"
-  plugin.name = "Signal K delta simulator"
+  plugin.name = "Autopilot state simulator"
   plugin.description = "Plugin that generates different kinds of deltas"
 
 
@@ -70,21 +80,109 @@ module.exports = function(app) {
       "apstate"
     ],
     properties: {
-      apstate: {
-        type: "string",
-        title: "Autopilot N2K Device ID ",
-        default: "204"
-      },
       outputPeriod: {
               type: "number",
-              title: "Output period (s)",
-              default: 2
-            }
+              title: "Change period",
+              default: 1
+            },
+        allStates: {
+        type: 'boolean',
+        title: 'Use all possible states for autopilot. when unchecked just standby, auto, wind and route are used.',
+        default: false
+      }
     }
   }
 
   return plugin;
 }
+
+
+function createStateDelta(state)
+{
+
+  var delta = {
+        updates: [
+          {
+            "$source": "apsimulator",
+            values: [
+              {
+                path: "steering.autopilot.state",
+                value: state
+              },
+              {
+                path: "steering.autopilot.target.windAngleApparent",
+                value: 0.0
+              },
+              {
+                path: "steering.autopilot.target.headingTrue",
+                value: 0.0
+              },
+              {
+                path: "steering.autopilot.target.headingMagnetic",
+                value: 0.0
+              }
+            ]
+          }
+        ]
+      }
+
+  return delta
+}
+
+function createTargetDelta(start)
+{
+  const hdgTrueMinValue = -1.0
+  const hdgTrueMaxValue = 1.0
+
+  const hdgNorthMinValue = -0.8
+  const hdgNorthMaxValue = +0.8
+
+  const windMinValue = -0.6
+  const windMaxValue = 0.6
+
+  const periodFromMinToMax = 600 // seconds
+
+  var targetDelta = {
+        updates: [
+          {
+            "$source": "apsimulator",
+            values: [
+              {
+                path: "steering.autopilot.target.windAngleApparent",
+                value: windMinValue +
+                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (windMaxValue - windMinValue)
+              },
+              {
+                path: "steering.autopilot.target.headingTrue",
+                value: hdgTrueMinValue +
+                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (hdgTrueMaxValue - hdgTrueMinValue)
+              },
+              {
+                path: "steering.autopilot.target.headingMagnetic",
+                value: hdgNorthMinValue +
+                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (hdgNorthMaxValue - hdgNorthMinValue)
+              }
+            ]
+          }
+        ]
+      }
+
+  return targetDelta
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
