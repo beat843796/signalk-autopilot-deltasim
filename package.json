@@ -1,0 +1,14 @@
+{
+  "name": "@signalk/autopilotsimulatorplugin",
+  "version": "0.0.1",
+  "description": "Signal K Node Server plugin to simulate steering/autopilot inputs",
+  "main": "index.js",
+  "keywords": [
+    "signalk-node-server-plugin"
+  ],
+  "author": "beat84@me.com",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^2.6.6"
+  }
+}
