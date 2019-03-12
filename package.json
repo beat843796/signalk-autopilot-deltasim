@@ -1,14 +1,22 @@
 {
-  "name": "@signalk/autopilotsimulatorplugin",
-  "version": "0.0.1",
-  "description": "Signal K Node Server plugin to simulate steering/autopilot inputs",
+  "name": "signalk-autopilot-deltasim",
+  "version": "1.0.0",
+  "description": "plugin to send deltas containg autopilot state and heading",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beat843796/signalk-autopilot-deltasim.git"
+  },
   "keywords": [
     "signalk-node-server-plugin"
   ],
   "author": "beat84@me.com",
   "license": "ISC",
-  "dependencies": {
-    "debug": "^2.6.6"
-  }
+  "bugs": {
+    "url": "https://github.com/beat843796/signalk-autopilot-deltasim/issues"
+  },
+  "homepage": "https://github.com/beat843796/signalk-autopilot-deltasim#readme"
 }
