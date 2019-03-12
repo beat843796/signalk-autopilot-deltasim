@@ -30,7 +30,7 @@ module.exports = function(app) {
     var delta = {
         updates: [
           {
-            "$source": "apsimulator." + i,
+            "$source": "apsimulator",
             values: [
               {
                 path: "steering.autopilot.state",
@@ -43,7 +43,7 @@ module.exports = function(app) {
 
     timers.push(setInterval(() => {
         app.handleMessage("apsimulator", delta
-      }, props.outputPeriod * 1000 || 1000))
+      }, props.outputPeriod * 1000 || 1000)
 
 
 
