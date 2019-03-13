@@ -140,8 +140,6 @@ function createTargetDelta(start)
   const windMinValue = -0.6
   const windMaxValue = 0.6
 
-  const periodFromMinToMax = 600 // seconds
-
   var targetDelta = {
         updates: [
           {
@@ -150,17 +148,17 @@ function createTargetDelta(start)
               {
                 path: "steering.autopilot.target.windAngleApparent",
                 value: windMinValue +
-                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (windMaxValue - windMinValue)
+                  Math.abs((((new Date().getTime() - start) / 1000) % 60)/ 60 - 0.5)* 2 * (windMaxValue - windMinValue)
               },
               {
                 path: "steering.autopilot.target.headingTrue",
                 value: hdgTrueMinValue +
-                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (hdgTrueMaxValue - hdgTrueMinValue)
+                  Math.abs((((new Date().getTime() - start) / 1000) % 60)/ 60 - 0.5)* 2 * (hdgTrueMaxValue - hdgTrueMinValue)
               },
               {
                 path: "steering.autopilot.target.headingMagnetic",
                 value: hdgNorthMinValue +
-                  Math.abs((((new Date().getTime() - start) / 1000) % (periodFromMinToMax || 60))/ (periodFromMinToMax || 60) - 0.5)* 2 * (hdgNorthMaxValue - hdgNorthMinValue)
+                  Math.abs((((new Date().getTime() - start) / 1000) % 60)/ 60 - 0.5)* 2 * (hdgNorthMaxValue - hdgNorthMinValue)
               }
             ]
           }
